@@ -5,8 +5,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class SnippetController {
@@ -35,7 +38,7 @@ public class SnippetController {
 
     @PostMapping("/api/code/new")
     @ResponseBody
-    public Map<String,Integer> postSnippet(@RequestBody Snippet snippet) {
+    public Map<String, Integer> postSnippet(@RequestBody Snippet snippet) {
         Snippet newSnippet = new Snippet();
         newSnippet.setCode(snippet.getCode());
         int id = snippetsDB.size() + 1;
@@ -50,4 +53,14 @@ public class SnippetController {
         return "createSnippet";
     }
 
+    @GetMapping("api/code/latest")
+    @ResponseBody
+    public List<Snippet> getLatest() {
+        return snippetsDB
+                .values()
+                .stream()
+                .sorted((s1, s2) -> s2.getDate().compareTo(s1.getDate()))
+                .limit(10)
+                .collect(Collectors.toList());
+    }
 }
