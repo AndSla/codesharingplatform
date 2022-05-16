@@ -1,6 +1,5 @@
 package com.learning.codesharingplatform;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -63,4 +62,17 @@ public class SnippetController {
                 .limit(10)
                 .collect(Collectors.toList());
     }
+
+    @GetMapping(value = "/code/latest", produces = "text/html")
+    public String getLatestHtml(Model model) {
+        List<Snippet> latestSnippets = snippetsDB
+                .values()
+                .stream()
+                .sorted((s1, s2) -> s2.getDate().compareTo(s1.getDate()))
+                .limit(10)
+                .collect(Collectors.toList());
+        model.addAttribute("snippets", latestSnippets);
+        return "getLatest";
+    }
+
 }
