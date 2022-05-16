@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>Code</title>
+    <title>Latest</title>
     <style>
         span {
             color: green;

@@ -4,7 +4,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,13 +13,6 @@ import java.util.stream.Collectors;
 public class SnippetController {
     private final Snippet snippet = new Snippet();
     private final Map<Integer, Snippet> snippetsDB = new HashMap<>();
-
-    {
-        snippet.setCode("public static void main(String[] args) {\n" +
-                "    SpringApplication.run(CodeSharingPlatform.class, args);\n" +
-                "}");
-        snippetsDB.put(snippetsDB.size() + 1, snippet);
-    }
 
     @GetMapping("/api/code/{id}")
     @ResponseBody
@@ -37,13 +29,13 @@ public class SnippetController {
 
     @PostMapping("/api/code/new")
     @ResponseBody
-    public Map<String, Integer> postSnippet(@RequestBody Snippet snippet) {
+    public Map<String, String> postSnippet(@RequestBody Snippet snippet) {
         Snippet newSnippet = new Snippet();
         newSnippet.setCode(snippet.getCode());
         int id = snippetsDB.size() + 1;
         snippetsDB.put(id, newSnippet);
-        Map<String, Integer> response = new HashMap<>();
-        response.put("id", id);
+        Map<String, String> response = new HashMap<>();
+        response.put("id", String.valueOf(id));
         return response;
     }
 
@@ -56,20 +48,22 @@ public class SnippetController {
     @ResponseBody
     public List<Snippet> getLatest() {
         return snippetsDB
-                .values()
+                .entrySet()
                 .stream()
-                .sorted((s1, s2) -> s2.getDate().compareTo(s1.getDate()))
+                .sorted((s1, s2) -> s2.getKey().compareTo(s1.getKey()))
                 .limit(10)
+                .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
     }
 
     @GetMapping(value = "/code/latest", produces = "text/html")
     public String getLatestHtml(Model model) {
         List<Snippet> latestSnippets = snippetsDB
-                .values()
+                .entrySet()
                 .stream()
-                .sorted((s1, s2) -> s2.getDate().compareTo(s1.getDate()))
+                .sorted((s1, s2) -> s2.getKey().compareTo(s1.getKey()))
                 .limit(10)
+                .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
         model.addAttribute("snippets", latestSnippets);
         return "getLatest";
