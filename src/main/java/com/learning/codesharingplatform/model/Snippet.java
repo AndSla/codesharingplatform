@@ -1,4 +1,4 @@
-package com.learning.codesharingplatform;
+package com.learning.codesharingplatform.model;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

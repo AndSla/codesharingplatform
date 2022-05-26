@@ -1,0 +1,10 @@
+<style>
+    span {
+        color: green;
+    }
+    pre {
+        border-style: solid;
+        border-width: 2px;
+        padding: 5px;
+    }
+</style>

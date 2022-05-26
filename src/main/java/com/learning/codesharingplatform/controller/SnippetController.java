@@ -1,5 +1,6 @@
-package com.learning.codesharingplatform;
+package com.learning.codesharingplatform.controller;
 
+import com.learning.codesharingplatform.model.Snippet;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;

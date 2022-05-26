@@ -1,16 +1,7 @@
 <html>
 <head>
     <title>Latest</title>
-    <style>
-        span {
-            color: green;
-        }
-        pre {
-            border-style: solid;
-            border-width: 2px;
-            padding: 5px;
-        }
-    </style>
+    <#include "styles.css">
 </head>
 <body>
     <#list snippets as snippet>
