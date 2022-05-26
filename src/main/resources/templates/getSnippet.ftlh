@@ -9,6 +9,6 @@
 </head>
 <body>
     <span id="load_date">${date}</span>
-    <pre id="code_snippet">${code}</pre>
+    <pre id="code_snippet"><code>${code}</code></pre>
 </body>
 </html>
