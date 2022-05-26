@@ -1,13 +1,27 @@
 package com.learning.codesharingplatform.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Entity
 public class Snippet {
+
+    @Id
+    private long id;
     private String code;
     private String date;
 
     public Snippet() {
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getCode() {
