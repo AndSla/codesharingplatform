@@ -3,30 +3,35 @@ package com.learning.codesharingplatform.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 @Entity
 public class Snippet {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
-    private long id;
+    @Transient
+    private final String DATE_FORMATTER = "yyyy/MM/dd HH:mm:ss";
+
+    @Id
+    @JsonIgnore
+    private UUID id = UUID.randomUUID();
     private String code;
-    private String date;
+    private String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMATTER));
+    private int time;
+    private int views;
 
     public Snippet() {
     }
 
-    public long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -36,8 +41,6 @@ public class Snippet {
 
     public void setCode(String code) {
         this.code = code;
-        String DATE_FORMATTER = "yyyy/MM/dd HH:mm:ss";
-        setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMATTER)));
     }
 
     public String getDate() {
@@ -48,4 +51,19 @@ public class Snippet {
         this.date = date;
     }
 
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
+    }
 }
