@@ -1,6 +1,7 @@
 package com.learning.codesharingplatform.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -18,6 +19,7 @@ public class Snippet {
 
     @Id
     @JsonIgnore
+    @Type(type = "uuid-char")
     private UUID id = UUID.randomUUID();
     private String code;
     private String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMATTER));
