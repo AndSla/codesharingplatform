@@ -37,6 +37,8 @@ public class SnippetController {
     public Map<String, String> postSnippet(@RequestBody Snippet snippet) {
         Snippet newSnippet = new Snippet();
         newSnippet.setCode(snippet.getCode());
+        newSnippet.setTime(snippet.getTime());
+        newSnippet.setViews(snippet.getViews());
         repository.save(newSnippet);
         Map<String, String> response = new HashMap<>();
         response.put("id", String.valueOf(newSnippet.getId()));
@@ -51,12 +53,12 @@ public class SnippetController {
     @GetMapping("api/code/latest")
     @ResponseBody
     public List<Snippet> getLatest() {
-        return repository.findFirst10ByOrderByIdDesc();
+        return repository.find10LatestSnippets();
     }
 
     @GetMapping(value = "/code/latest", produces = "text/html")
     public String getLatestHtml(Model model) {
-        List<Snippet> latestSnippets = repository.findFirst10ByOrderByIdDesc();
+        List<Snippet> latestSnippets = repository.find10LatestSnippets();
         model.addAttribute("snippets", latestSnippets);
         return "getLatest";
     }
