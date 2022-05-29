@@ -19,7 +19,7 @@ public class Snippet {
 
     @Id
     @JsonIgnore
-    @Type(type = "uuid-char") // free version of IntelliJ doesn't support hibernate integration
+    @Type(type = "uuid-char")
     private UUID id = UUID.randomUUID();
     private String code;
     private String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMATTER));

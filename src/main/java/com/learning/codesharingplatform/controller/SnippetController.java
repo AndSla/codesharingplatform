@@ -11,6 +11,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 public class SnippetController {
@@ -20,12 +21,12 @@ public class SnippetController {
 
     @GetMapping("/api/code/{id}")
     @ResponseBody
-    public Snippet getCodeJson(@PathVariable long id) {
+    public Snippet getCodeJson(@PathVariable UUID id) {
         return repository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     @GetMapping(value = "/code/{id}", produces = "text/html")
-    public String getCodeHtml(@PathVariable long id, Model model) {
+    public String getCodeHtml(@PathVariable UUID id, Model model) {
         Snippet snippet = repository.findById(id).orElseThrow(EntityNotFoundException::new);
         model.addAttribute("date", snippet.getDate());
         model.addAttribute("code", snippet.getCode());
