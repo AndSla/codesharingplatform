@@ -30,7 +30,13 @@ public class SnippetController {
         Snippet snippet = repository.findById(id).orElseThrow(EntityNotFoundException::new);
         model.addAttribute("date", snippet.getDate());
         model.addAttribute("code", snippet.getCode());
-        return "getSnippet";
+        if (snippet.getTime() > 0 || snippet.getViews() > 0) {
+            model.addAttribute("time", snippet.getTime());
+            model.addAttribute("views", snippet.getViews());
+            return "getSecretSnippet";
+        } else {
+            return "getSnippet";
+        }
     }
 
     @PostMapping("/api/code/new")

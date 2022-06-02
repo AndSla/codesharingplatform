@@ -8,7 +8,9 @@
     <script>hljs.initHighlightingOnLoad();</script>
 </head>
 <body>
-    <span id="load_date">${date}</span>
+    <span id="load_date">${date}</span><br>
+    <span id="time_restriction">${views} more views allowed</span><br>
+    <span id="views_restriction">The code will be available for ${time} seconds</span><br>
     <pre id="code_snippet"><code>${code}</code></pre>
 </body>
 </html>
