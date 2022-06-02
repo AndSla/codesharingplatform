@@ -9,6 +9,8 @@
 </head>
 <body>
     <span id="load_date">${date}</span>
+    <span id="time_restriction">${time} more views allowed</span>
+    <span id="views_restriction">Te code will be available for ${views} seconds</span>
     <pre id="code_snippet"><code>${code}</code></pre>
 </body>
 </html>
