@@ -1,13 +1,11 @@
 package com.learning.codesharingplatform.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Entity
@@ -21,10 +19,19 @@ public class Snippet {
     @JsonIgnore
     @Type(type = "uuid-char")
     private UUID id = UUID.randomUUID();
+
     private String code;
-    private String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMATTER));
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_FORMATTER)
+    private LocalDateTime date = LocalDateTime.now();
+
     private int time;
     private int views;
+
+    @OneToOne(mappedBy = "snippet", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    @JsonIgnore
+    private AdditionalData additionalData;
 
     public Snippet() {
     }
@@ -45,11 +52,11 @@ public class Snippet {
         this.code = code;
     }
 
-    public String getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 
@@ -67,5 +74,13 @@ public class Snippet {
 
     public void setViews(int views) {
         this.views = views;
+    }
+
+    public AdditionalData getAdditionalData() {
+        return additionalData;
+    }
+
+    public void setAdditionalData(AdditionalData additionalData) {
+        this.additionalData = additionalData;
     }
 }

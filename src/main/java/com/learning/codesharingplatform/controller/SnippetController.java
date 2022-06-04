@@ -1,6 +1,8 @@
 package com.learning.codesharingplatform.controller;
 
+import com.learning.codesharingplatform.model.AdditionalData;
 import com.learning.codesharingplatform.model.Snippet;
+import com.learning.codesharingplatform.repository.AdditionalDataRepository;
 import com.learning.codesharingplatform.repository.SnippetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,6 +21,9 @@ public class SnippetController {
     @Autowired
     private SnippetRepository repository;
 
+    @Autowired
+    private AdditionalDataRepository dataRepository;
+
     @GetMapping("/api/code/{id}")
     @ResponseBody
     public Snippet getCodeJson(@PathVariable UUID id) {
@@ -30,7 +35,7 @@ public class SnippetController {
         Snippet snippet = repository.findById(id).orElseThrow(EntityNotFoundException::new);
         model.addAttribute("date", snippet.getDate());
         model.addAttribute("code", snippet.getCode());
-        if (snippet.getTime() > 0 || snippet.getViews() > 0) {
+        if (isSecret(snippet)) {
             model.addAttribute("time", snippet.getTime());
             model.addAttribute("views", snippet.getViews());
             return "getSecretSnippet";
@@ -46,7 +51,16 @@ public class SnippetController {
         newSnippet.setCode(snippet.getCode());
         newSnippet.setTime(snippet.getTime());
         newSnippet.setViews(snippet.getViews());
+
+        if (isSecret(newSnippet)) {
+            AdditionalData data = new AdditionalData();
+            data.setExpirationDate(newSnippet.getDate().plusSeconds(newSnippet.getTime()));
+            data.setSnippet(newSnippet);
+            dataRepository.save(data);
+        }
+
         repository.save(newSnippet);
+
         Map<String, String> response = new HashMap<>();
         response.put("id", String.valueOf(newSnippet.getId()));
         return response;
@@ -68,6 +82,10 @@ public class SnippetController {
         List<Snippet> latestSnippets = repository.find10LatestSnippets();
         model.addAttribute("snippets", latestSnippets);
         return "getLatest";
+    }
+
+    boolean isSecret(Snippet snippet) {
+        return snippet.getTime() > 0 || snippet.getViews() > 0;
     }
 
 }
