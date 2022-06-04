@@ -8,7 +8,13 @@
     <script>hljs.initHighlightingOnLoad();</script>
 </head>
 <body>
-    <span id="load_date">${date}</span>
+
+    <#-- date przychodzi jako String, wobec czego parsuje go do daty uzywaja datetime
+    i xs_ms_nz - co oznacza format: yyyy-MM-ddTHH:mm:ss.SSS
+    nastepnie freemarker wyswietla to jako date wg formatu ze swojej konfiguracji
+    patrz komentarz w configu -->
+
+    <span id="load_date">${date?datetime.xs_ms_nz}</span>
     <pre id="code_snippet"><code>${code}</code></pre>
 </body>
 </html>

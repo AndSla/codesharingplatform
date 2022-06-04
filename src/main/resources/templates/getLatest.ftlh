@@ -9,7 +9,7 @@
 </head>
 <body>
     <#list snippets as snippet>
-        <span id="load_date">${snippet.date}</span>
+        <span id="load_date">${snippet.date?datetime.xs_ms_nz}</span>
         <pre id="code_snippet"><code>${snippet.code}</code></pre>
     </#list>
 </body>
