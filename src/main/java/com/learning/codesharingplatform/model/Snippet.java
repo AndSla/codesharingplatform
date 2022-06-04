@@ -25,7 +25,7 @@ public class Snippet {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_FORMATTER)
     private LocalDateTime date = LocalDateTime.now();
 
-    private int time;
+    private long time;
     private int views;
 
     @OneToOne(mappedBy = "snippet", cascade = CascadeType.ALL)
@@ -60,11 +60,11 @@ public class Snippet {
         this.date = date;
     }
 
-    public int getTime() {
+    public long getTime() {
         return time;
     }
 
-    public void setTime(int time) {
+    public void setTime(long time) {
         this.time = time;
     }
 

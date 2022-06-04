@@ -10,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,13 +37,19 @@ public class SnippetController {
         Snippet snippet = repository.findById(id).orElseThrow(EntityNotFoundException::new);
         model.addAttribute("date", snippet.getDate());
         model.addAttribute("code", snippet.getCode());
+
         if (isSecret(snippet)) {
-            model.addAttribute("time", snippet.getTime());
-            model.addAttribute("views", snippet.getViews());
-            return "getSecretSnippet";
-        } else {
-            return "getSnippet";
+            if (isValidForDisplay(snippet)) {
+                model.addAttribute("time", snippet.getTime());
+                model.addAttribute("views", snippet.getViews());
+                return "getSecretSnippet";
+            } else {
+                return "snippetNotFound";
+            }
         }
+
+        return "getSnippet";
+
     }
 
     @PostMapping("/api/code/new")
@@ -86,6 +94,23 @@ public class SnippetController {
 
     boolean isSecret(Snippet snippet) {
         return snippet.getTime() > 0 || snippet.getViews() > 0;
+    }
+
+    boolean isValidForDisplay(Snippet snippet) {
+        int views = snippet.getViews() - 1;
+        LocalDateTime viewDate = LocalDateTime.now();
+        LocalDateTime expirationDate = snippet.getAdditionalData().getExpirationDate();
+        long time = ChronoUnit.SECONDS.between(viewDate, expirationDate);
+
+        if (views < 0 || time < 0) {
+            repository.delete(snippet);
+            return false;
+        }
+
+        snippet.setViews(views);
+        snippet.setTime(time);
+        repository.save(snippet);
+        return true;
     }
 
 }
