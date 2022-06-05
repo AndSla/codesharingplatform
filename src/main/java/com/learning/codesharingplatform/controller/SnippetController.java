@@ -1,5 +1,6 @@
 package com.learning.codesharingplatform.controller;
 
+import com.learning.codesharingplatform.exception.SnippetNotFoundException;
 import com.learning.codesharingplatform.model.AdditionalData;
 import com.learning.codesharingplatform.model.Snippet;
 import com.learning.codesharingplatform.repository.AdditionalDataRepository;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -29,12 +29,18 @@ public class SnippetController {
     @GetMapping("/api/code/{id}")
     @ResponseBody
     public Snippet getCodeJson(@PathVariable UUID id) {
-        return repository.findById(id).orElseThrow(EntityNotFoundException::new);
+        Snippet snippet = repository.findById(id).orElseThrow(SnippetNotFoundException::new);
+        if (isSecret(snippet)) {
+            if (!isValidForDisplay(snippet)) {
+                throw new SnippetNotFoundException();
+            }
+        }
+        return snippet;
     }
 
     @GetMapping(value = "/code/{id}", produces = "text/html")
     public String getCodeHtml(@PathVariable UUID id, Model model) {
-        Snippet snippet = repository.findById(id).orElseThrow(EntityNotFoundException::new);
+        Snippet snippet = repository.findById(id).orElseThrow(SnippetNotFoundException::new);
         model.addAttribute("date", snippet.getDate());
         model.addAttribute("code", snippet.getCode());
 
@@ -44,7 +50,7 @@ public class SnippetController {
                 model.addAttribute("views", snippet.getViews());
                 return "getSecretSnippet";
             } else {
-                return "snippetNotFound";
+                throw new SnippetNotFoundException();
             }
         }
 
