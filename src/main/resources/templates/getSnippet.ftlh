@@ -15,10 +15,10 @@
     patrz komentarz w configu -->
 
     <span id="load_date">${date?datetime.xs_ms_nz}</span><br>
-    <#if views gte 0>
+    <#if restriction="VIEW" || restriction="BOTH">
         <span id="views_restriction">${views} more views allowed</span><br>
     </#if>
-    <#if time gte 0>
+    <#if restriction="TIME" || restriction="BOTH">
         <span id="time_restriction">The code will be available for ${time} seconds</span><br>
     </#if>
     <pre id="code_snippet"><code>${code}</code></pre>

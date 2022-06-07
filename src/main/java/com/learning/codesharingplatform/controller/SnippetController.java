@@ -53,6 +53,7 @@ public class SnippetController {
             model.addAttribute("code", snippet.getCode());
             model.addAttribute("time", snippet.getTime());
             model.addAttribute("views", snippet.getViews());
+            model.addAttribute("restriction", snippet.getAdditionalData().getRestriction());
         } else {
             throw new SnippetNotFoundException();
         }
