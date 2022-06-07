@@ -1,5 +1,6 @@
 package com.learning.codesharingplatform.model;
 
+import com.learning.codesharingplatform.restriction.Restriction;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -20,6 +21,8 @@ public class AdditionalData {
     private Snippet snippet;
 
     private LocalDateTime expirationDate;
+
+    private Restriction restriction;
 
     public AdditionalData() {
     }
@@ -46,5 +49,13 @@ public class AdditionalData {
 
     public void setExpirationDate(LocalDateTime expirationDate) {
         this.expirationDate = expirationDate;
+    }
+
+    public Restriction getRestriction() {
+        return restriction;
+    }
+
+    public void setRestriction(Restriction restriction) {
+        this.restriction = restriction;
     }
 }

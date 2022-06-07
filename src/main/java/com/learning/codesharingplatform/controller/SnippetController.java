@@ -5,6 +5,7 @@ import com.learning.codesharingplatform.model.AdditionalData;
 import com.learning.codesharingplatform.model.Snippet;
 import com.learning.codesharingplatform.repository.AdditionalDataRepository;
 import com.learning.codesharingplatform.repository.SnippetRepository;
+import com.learning.codesharingplatform.restriction.Restriction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,28 +31,30 @@ public class SnippetController {
     @ResponseBody
     public Snippet getCodeJson(@PathVariable UUID id) {
         Snippet snippet = repository.findById(id).orElseThrow(SnippetNotFoundException::new);
-        if (isSecret(snippet)) {
-            if (!isValidForDisplay(snippet)) {
-                throw new SnippetNotFoundException();
-            }
+
+        snippet = snippetAfterRestrictionCheck(snippet);
+
+        if (snippet != null) {
+            return snippet;
+        } else {
+            throw new SnippetNotFoundException();
         }
-        return snippet;
+
     }
 
     @GetMapping(value = "/code/{id}", produces = "text/html")
     public String getCodeHtml(@PathVariable UUID id, Model model) {
         Snippet snippet = repository.findById(id).orElseThrow(SnippetNotFoundException::new);
-        model.addAttribute("date", snippet.getDate());
-        model.addAttribute("code", snippet.getCode());
 
-        if (isSecret(snippet)) {
-            if (isValidForDisplay(snippet)) {
-                model.addAttribute("time", snippet.getTime());
-                model.addAttribute("views", snippet.getViews());
-                return "getSecretSnippet";
-            } else {
-                throw new SnippetNotFoundException();
-            }
+        snippet = snippetAfterRestrictionCheck(snippet);
+
+        if (snippet != null) {
+            model.addAttribute("date", snippet.getDate());
+            model.addAttribute("code", snippet.getCode());
+            model.addAttribute("time", snippet.getTime());
+            model.addAttribute("views", snippet.getViews());
+        } else {
+            throw new SnippetNotFoundException();
         }
 
         return "getSnippet";
@@ -66,12 +69,15 @@ public class SnippetController {
         newSnippet.setTime(snippet.getTime());
         newSnippet.setViews(snippet.getViews());
 
-        if (isSecret(newSnippet)) {
-            AdditionalData data = new AdditionalData();
+        Restriction restriction = setRestriction(newSnippet);
+
+        AdditionalData data = new AdditionalData();
+        data.setSnippet(newSnippet);
+        if (restriction == Restriction.TIME || restriction == Restriction.BOTH) {
             data.setExpirationDate(newSnippet.getDate().plusSeconds(newSnippet.getTime()));
-            data.setSnippet(newSnippet);
-            dataRepository.save(data);
         }
+        data.setRestriction(restriction);
+        dataRepository.save(data);
 
         repository.save(newSnippet);
 
@@ -98,25 +104,66 @@ public class SnippetController {
         return "getLatest";
     }
 
-    boolean isSecret(Snippet snippet) {
-        return snippet.getTime() > 0 || snippet.getViews() > 0;
-    }
+    Restriction setRestriction(Snippet snippet) {
 
-    boolean isValidForDisplay(Snippet snippet) {
-        int views = snippet.getViews() - 1;
-        LocalDateTime viewDate = LocalDateTime.now();
-        LocalDateTime expirationDate = snippet.getAdditionalData().getExpirationDate();
-        long time = ChronoUnit.SECONDS.between(viewDate, expirationDate);
-
-        if (views < 0 || time < 0) {
-            repository.delete(snippet);
-            return false;
+        if (snippet.getTime() > 0 && snippet.getViews() > 0) {
+            return Restriction.BOTH;
+        } else if (snippet.getTime() > 0 && snippet.getViews() <= 0) {
+            return Restriction.TIME;
+        } else if ((snippet.getTime() <= 0 && snippet.getViews() > 0)) {
+            return Restriction.VIEW;
         }
 
-        snippet.setViews(views);
-        snippet.setTime(time);
-        repository.save(snippet);
-        return true;
+        return Restriction.NONE;
+    }
+
+    Snippet snippetAfterRestrictionCheck(Snippet snippet) {
+
+        Restriction restriction = snippet.getAdditionalData().getRestriction();
+        boolean breakOut = true;
+        boolean timeNotExpired = true;
+        boolean viewsAvailable = true;
+        boolean updateRepository = true;
+
+        switch (restriction) {
+            case BOTH:
+                breakOut = false;
+            case TIME:
+                LocalDateTime viewDate = LocalDateTime.now();
+                LocalDateTime expirationDate = snippet.getAdditionalData().getExpirationDate();
+                long time = ChronoUnit.SECONDS.between(viewDate, expirationDate);
+                snippet.setTime(time);
+                timeNotExpired = time >= 0;
+                if (breakOut) {
+                    break;
+                }
+            case VIEW:
+                int views = snippet.getViews() - 1;
+                snippet.setViews(views);
+                viewsAvailable = views >= 0;
+                if (breakOut) {
+                    break;
+                }
+                break;
+            case NONE:
+                updateRepository = false;
+
+        }
+
+        if (updateRepository) {
+
+            if (timeNotExpired && viewsAvailable) {
+                repository.save(snippet);
+                return snippet;
+            } else {
+                repository.delete(snippet);
+                return null;
+            }
+
+        } else {
+            return snippet;
+        }
+
     }
 
 }
